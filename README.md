@@ -1,1 +1,3 @@
 # Infrastructure
+
+![Schema](schema.png)
