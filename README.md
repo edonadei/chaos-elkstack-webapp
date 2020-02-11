@@ -9,3 +9,5 @@ L'idée est d'utiliser Kibana qui permet de visualiser les données pour Elastic
 Nous pourrons par la suite rajouter des conteneurs logstach et Filebeat par exemple.
 
 Ainsi, le client pourra facilement surveiller ses applis et avoir une visibilité sur ses données. 
+
+Notre groupe est constitué de Emrick Donadei, Camille Leou, Jérôme Coffin, Alexandre Pares.
