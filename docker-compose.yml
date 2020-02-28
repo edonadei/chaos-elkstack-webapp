@@ -30,6 +30,7 @@ services:       #Services à exécuter
       - APACHE_1_IP=${APACHE_1_IP}
       - APACHE_2_IP=${APACHE_2_IP}
       - APACHE_EXPOSED_PORT=${APACHE_EXPOSED_PORT}
+    restart: always
   elasticsearch:        #service utilisé pour elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
     environment:
