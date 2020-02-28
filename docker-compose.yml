@@ -1,55 +1,70 @@
-version: "3"
-
+version: '3'
 services:
-  apache_img_1:
-    container_name: ${COMPOSE_PROJECT_NAME}_apache_con_1
-    build: ./apache/1
-    expose:
-      - ${APACHE_EXPOSED_PORT}
-    networks:
-      public_net:
-        ipv4_address: ${APACHE_1_IP}
-  apache_img_2:
-    container_name: ${COMPOSE_PROJECT_NAME}_apache_con_2
-    build: ./apache/2
-    expose:
-      - ${APACHE_EXPOSED_PORT}
-    networks:
-      public_net:
-        ipv4_address: ${APACHE_2_IP}
-  haproxy:
-    build: ./haproxy
-    ports:
-      - 80:80
-    expose:
-      - 80
-    networks:
-      public_net:
-        ipv4_address: ${HA_PROXY_IP}
+  esmaster:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.0
+    container_name: esmaster
     environment:
-      - APACHE_1_IP=${APACHE_1_IP}
-      - APACHE_2_IP=${APACHE_2_IP}
-      - APACHE_EXPOSED_PORT=${APACHE_EXPOSED_PORT}
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
-    environment:
-      - cluster.name=docker-cluster
+      - node.name=esmaster
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=esclient1,esclient2
+      - cluster.initial_master_nodes=esmaster,esclient1,esclient2
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ulimits:
       memlock:
         soft: -1
         hard: -1
+    volumes:
+      - datamaster:/usr/share/elasticsearch/data
     ports:
-      - "9200:9200"
-  kibana:
-    image: docker.elastic.co/kibana/kibana:6.3.2
-    ports:
-      - "5601:5601"
+      - 9200:9200
+    networks:
+      - elastic
+  esclient1:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.0
+    container_name: esclient1
+    environment:
+      - node.name=esclient1
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=esmaster,esclient2
+      - cluster.initial_master_nodes=esmaster,esclient1,esclient2
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - dataclient1:/usr/share/elasticsearch/data
+    networks:
+      - elastic
+  esclient2:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.0
+    container_name: esclient2
+    environment:
+      - node.name=esclient2
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=esmaster,esclient1
+      - cluster.initial_master_nodes=esmaster,esclient1,esclient2
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - dataclient2:/usr/share/elasticsearch/data
+    networks:
+      - elastic
+
+volumes:
+  datamaster:
+    driver: local
+  dataclient1:
+    driver: local
+  dataclient2:
+    driver: local
 
 networks:
-  public_net:
+  elastic:
     driver: bridge
-    ipam:
-      config:
-        - subnet: ${NETWORK_SUBNET}
