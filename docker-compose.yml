@@ -5,6 +5,13 @@ services:
     container_name: esmaster
     environment:
       - node.name=esmaster
+      - node.master=true
+      - node.voting_only=false 
+      - node.data=false 
+      - node.ingest=false 
+      - node.ml=false 
+      - xpack.ml.enabled=true 
+      - cluster.remote.connect=false
       - cluster.name=es-docker-cluster
       - discovery.seed_hosts=esclient1,esclient2
       - cluster.initial_master_nodes=esmaster,esclient1,esclient2
@@ -17,7 +24,7 @@ services:
     volumes:
       - datamaster:/usr/share/elasticsearch/data
     ports:
-      - 9200:9200
+      - 127.0.0.1:9200:9200
     networks:
       - elastic
   esclient1:
@@ -25,6 +32,14 @@ services:
     container_name: esclient1
     environment:
       - node.name=esclient1
+      - node.master=false
+      - node.voting_only=false 
+      - node.data=true 
+      - node.ingest=false 
+      - node.ml=false 
+      - cluster.remote.connect=false 
+      #would be great to make it an ingest node for pipeline process
+      #by default ingest is set to true for all nodes
       - cluster.name=es-docker-cluster
       - discovery.seed_hosts=esmaster,esclient2
       - cluster.initial_master_nodes=esmaster,esclient1,esclient2
@@ -43,6 +58,12 @@ services:
     container_name: esclient2
     environment:
       - node.name=esclient2
+      - node.master=false 
+      - node.voting_only=false 
+      - node.data=true 
+      - node.ingest=false 
+      - node.ml=false 
+      - cluster.remote.connect=false 
       - cluster.name=es-docker-cluster
       - discovery.seed_hosts=esmaster,esclient1
       - cluster.initial_master_nodes=esmaster,esclient1,esclient2
