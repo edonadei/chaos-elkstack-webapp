@@ -1,15 +1,15 @@
 version: "3"
 
-services:
-  apache_img_1:
+services:       #Services à exécuter
+  apache_img_1:     #Premier serveur apache à démarrer / Service 1
     container_name: ${COMPOSE_PROJECT_NAME}_apache_con_1
-    build: ./apache/1
-    expose:
+    build: ./apache/1     #tag de l'image construite
+    expose:               #Ports de notre service (port interne)
       - ${APACHE_EXPOSED_PORT}
     networks:
-      public_net:
+      public_net:           #Custom name
         ipv4_address: ${APACHE_1_IP}
-  apache_img_2:
+  apache_img_2:       #Deuxième serveur apache à démarrer / Service 2
     container_name: ${COMPOSE_PROJECT_NAME}_apache_con_2
     build: ./apache/2
     expose:
@@ -17,8 +17,8 @@ services:
     networks:
       public_net:
         ipv4_address: ${APACHE_2_IP}
-  haproxy:
-    build: ./haproxy
+  haproxy:            #Service haproxy : load balancing + proxy pour TCP et applications HTTP
+    build: ./haproxy  
     ports:
       - 80:80
     expose:
@@ -26,11 +26,11 @@ services:
     networks:
       public_net:
         ipv4_address: ${HA_PROXY_IP}
-    environment:
+    environment:      #Passage de notre shell actuel aux services des conteneurs ci-dessous
       - APACHE_1_IP=${APACHE_1_IP}
       - APACHE_2_IP=${APACHE_2_IP}
       - APACHE_EXPOSED_PORT=${APACHE_EXPOSED_PORT}
-  elasticsearch:
+  elasticsearch:        #service utilisé pour elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
     environment:
       - cluster.name=docker-cluster
@@ -42,7 +42,7 @@ services:
         hard: -1
     ports:
       - "9200:9200"
-  kibana:
+  kibana:     #Service utilisé pour kibana
     image: docker.elastic.co/kibana/kibana:6.3.2
     ports:
       - "5601:5601"
