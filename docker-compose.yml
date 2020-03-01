@@ -9,7 +9,6 @@ services:       #Services à exécuter
     networks:
       public_net:           #Custom name
         ipv4_address: ${APACHE_1_IP}
-
   apache_img_2:       #Deuxième serveur apache à démarrer / Service 2
     container_name: ${COMPOSE_PROJECT_NAME}_apache_con_2
     build: ./apache/2
@@ -18,7 +17,6 @@ services:       #Services à exécuter
     networks:
       public_net:
         ipv4_address: ${APACHE_2_IP}
-
   haproxy:            #Service haproxy : load balancing + proxy pour TCP et applications HTTP
     build: ./haproxy  
     ports:
@@ -33,7 +31,7 @@ services:       #Services à exécuter
       - APACHE_2_IP=${APACHE_2_IP}
       - APACHE_EXPOSED_PORT=${APACHE_EXPOSED_PORT}
     restart: always
-
+    
   esmaster:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.6.0
     container_name: esmaster
@@ -61,6 +59,7 @@ services:       #Services à exécuter
       - 127.0.0.1:9200:9200
     networks:
       - elastic
+      
   esdata1:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.6.0
     container_name: esdata1
@@ -87,7 +86,7 @@ services:       #Services à exécuter
       - data1:/usr/share/elasticsearch/data
     networks:
       - elastic
-
+      
   kibana:     #Service utilisé pour kibana
     image: docker.elastic.co/kibana/kibana:6.3.2
     ports:
