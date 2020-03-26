@@ -18,4 +18,4 @@ docker-compose up -d
 
 ## Schema of infrastructure
 **V1**
-![Schema](schema.png)
+![Schema](schema_infra.png)
