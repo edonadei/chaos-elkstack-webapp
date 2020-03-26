@@ -62,6 +62,20 @@ services:       #Services à exécuter
     networks:
       - elknet
 
+  logstash:
+    build : ./logstash
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ./logstash/pipeline:/usr/share/logstash/pipeline
+    ports:
+      - "5000:5000/tcp"
+      - "5000:5000/udp"
+      - "9600:9600"
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    networks:
+      - elknet
+
 # networks:
 #   public_net:
 #     driver: bridge
