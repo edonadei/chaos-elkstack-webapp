@@ -2,7 +2,7 @@
 
 - Load balanced by HAProxy
 - Multiple instances of apache app
-- Injection of chaos with Pumba to test reliability
+- Injection of chaos with Pumba to test reliability (Actually killing each 30s with SIGTERM)
 
 ## Getting started
 To start the load balanced apache with ELK
@@ -15,11 +15,6 @@ docker-compose up -d
 - Then you can access to the application by reaching **localhost**
 - Kibana is also accessible by reaching **localhost:5601**
 - Elasticsearch is set up on **localhost:9200**
-
-## Command to start Pumba 
-```docker
-docker run -it --rm  -v /var/run/docker.sock:/var/run/docker.sock gaiaadm/pumba --interval=20s --random --log-level=info kill --signal=SIGKILL 
-```
 
 ## Schema of infrastructure
 **V1**
