@@ -418,7 +418,7 @@ filebeat.prospectors:
       enabled: true
     
       # The Logstash hosts
-      hosts: ["logstash:9600"]
+      hosts: ["logstash:9200"]
       
       # Number of workers per Logstash host.
       #worker: 1

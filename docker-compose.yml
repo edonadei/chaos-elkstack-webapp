@@ -77,6 +77,17 @@ services:       #Services à exécuter
     networks:
       - elknet
 
+  filbeat:
+    build : ./filebeat
+    volumes:
+      - ./filebeat/config:/etc/filebeat
+      - ./logs:/logs
+    networks:
+      - elknet
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
+
 networks:
   public_net:
     driver: bridge
