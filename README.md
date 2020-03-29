@@ -16,6 +16,11 @@ docker-compose up -d
 - Kibana is also accessible by reaching **localhost:5601**
 - Elasticsearch is set up on **localhost:9200**
 
+## Command to start Pumba 
+```docker
+docker run -it --rm  -v /var/run/docker.sock:/var/run/docker.sock gaiaadm/pumba --interval=20s --random --log-level=info kill --signal=SIGKILL 
+```
+
 ## Schema of infrastructure
 **V1**
 ![Schema](schema_infra.png)
