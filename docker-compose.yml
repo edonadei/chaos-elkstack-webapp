@@ -73,20 +73,34 @@ services:       #Services à exécuter
       - "5044:5044/udp"
       - "9600:9600"
     environment:
-      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+      - ES_JAVA_OPTS=-Xms750m -Xmx750m
     networks:
       - elknet
 
-  filbeat:
+  filebeat:
     build : ./filebeat
+    #to avoid errors as filebeat starts in few ms
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      kibana:
+        condition: service_healthy
+      logstash:
+        condition: service_healthy
     volumes:
-      - ./filebeat/config:/etc/filebeat
+      - ./filebeat/config/filebeat.yml:/etc/filebeat/filebeat.yml
       - ./logs:/logs
+    environment:
+      - ES_JAVA_OPTS=-Xms750m -Xmx750m
     networks:
       - elknet
     depends_on:
       - elasticsearch
     restart: unless-stopped
+    links:
+      - "elasticsearch"
+      - "kibana"
+      - "logstash"
 
 networks:
   public_net:
