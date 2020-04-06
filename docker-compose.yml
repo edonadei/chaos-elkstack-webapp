@@ -2,16 +2,18 @@ version: "3"
 
 services:       #Services à exécuter
   apache_img_1:     #Premier serveur apache à démarrer / Service 1
-    container_name: ${COMPOSE_PROJECT_NAME}_apache_con_1
+    container_name: ${COMPOSE_PROJECT_NAME}_con_apache_1
     build: ./apache/1     #tag de l'image construite
+    restart: always
     expose:               #Ports de notre service (port interne)
       - ${APACHE_EXPOSED_PORT}
     networks:
       public_net:           #Custom name
         ipv4_address: ${APACHE_1_IP}
   apache_img_2:       #Deuxième serveur apache à démarrer / Service 2
-    container_name: ${COMPOSE_PROJECT_NAME}_apache_con_2
+    container_name: ${COMPOSE_PROJECT_NAME}_con_apache_2
     build: ./apache/2
+    restart: always
     expose:
       - ${APACHE_EXPOSED_PORT}
     networks:
@@ -19,6 +21,7 @@ services:       #Services à exécuter
         ipv4_address: ${APACHE_2_IP}
   haproxy:            #Service haproxy : load balancing + proxy pour TCP et applications HTTP
     build: ./haproxy  
+    container_name: ${COMPOSE_PROJECT_NAME}_haproxy_1
     ports:
       - 80:80
     expose:
@@ -31,10 +34,21 @@ services:       #Services à exécuter
       - APACHE_2_IP=${APACHE_2_IP}
       - APACHE_EXPOSED_PORT=${APACHE_EXPOSED_PORT}
     restart: always
+
+  # Chaos engineering, killing each 30s a container
+  pumba:
+    image: gaiaadm/pumba
+    container_name: chaos_with_pumba
+    restart: always
+    #the --signal=SIGKILL would be definitely more effective, but no restart mechanic yet except the restart:always
+    command: --interval=30s --random --log-level=info kill --signal=SIGTERM "re2:^${COMPOSE_PROJECT_NAME}" 
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     
   elasticsearch:
     build : ./elasticsearch
     container_name: elasticsearch
+    restart: always
     environment:
       - discovery.type=single-node
       - ES_JAVA_OPTS=-Xms750m -Xmx750m

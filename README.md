@@ -2,7 +2,7 @@
 
 - Load balanced by HAProxy
 - Multiple instances of apache app
-- Injection of chaos with Pumba to test reliability
+- Injection of chaos with Pumba to test reliability (Actually killing each 30s with SIGTERM)
 
 ## Getting started
 To start the load balanced apache with ELK
