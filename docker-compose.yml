@@ -51,6 +51,8 @@ services:       #Services à exécuter
       SERVER_NAME : kibana
       #accessing elasticsearch url and port inside the subnet
       ELASTICSEARCH_URL : http://elasticsearch:9200
+    #volumes:
+     # - ./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
     networks:
       - elknet
   
@@ -68,10 +70,6 @@ services:       #Services à exécuter
     volumes:
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
       - ./logstash/pipeline:/usr/share/logstash/pipeline
-    ports:
-      - "5044:5044/tcp"
-      - "5044:5044/udp"
-      - "9600:9600"
     environment:
       - ES_JAVA_OPTS=-Xms750m -Xmx750m
     networks:
