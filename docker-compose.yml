@@ -45,69 +45,74 @@ services:       #Services à exécuter
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     
-  esmaster:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.0
-    container_name: ${COMPOSE_PROJECT_NAME}_esmaster_1
+  elasticsearch:
+    build : ./elasticsearch
+    container_name: elasticsearch
     restart: always
     environment:
-      - node.name=esmaster
-      - node.master=true
-      - node.voting_only=false 
-      - node.data=false 
-      - node.ingest=false 
-      - node.ml=false 
-      - xpack.ml.enabled=true 
-      - cluster.remote.connect=false
-      - cluster.name=es-docker-cluster
-      - discovery.seed_hosts=esdata1
-      - cluster.initial_master_nodes=esmaster,esdata1
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - datamaster:/usr/share/elasticsearch/data
-    ports:
-      - 127.0.0.1:9200:9200
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms750m -Xmx750m
     networks:
-      - elastic
+      - elknet
+    #data persitence
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
       
-  esdata1:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.0
-    container_name: ${COMPOSE_PROJECT_NAME}_esdata_1
-    restart: always
+  kibana:
+    build : ./kibana
+    container_name: kibana
     environment:
-      - node.name=esdata1
-      - node.master=false
-      - node.voting_only=false 
-      - node.data=true 
-      - node.ingest=false 
-      - node.ml=false 
-      - cluster.remote.connect=false 
-      #would be great to make it an ingest node for pipeline process
-      #by default ingest is set to true for all nodes
-      - cluster.name=es-docker-cluster
-      - discovery.seed_hosts=esmaster
-      - cluster.initial_master_nodes=esmaster,esdata1
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - data1:/usr/share/elasticsearch/data
+      SERVER_NAME : kibana
+      #accessing elasticsearch url and port inside the subnet
+      ELASTICSEARCH_URL : http://elasticsearch:9200
+    #volumes:
+     # - ./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
     networks:
-      - elastic
-      
-  kibana:     #Service utilisé pour kibana
-    image: docker.elastic.co/kibana/kibana:6.3.2
-    container_name: ${COMPOSE_PROJECT_NAME}_kibana_1
+      - elknet
+  
+  proxy:
+    build : ./nginx
+    container_name : proxy
+    #the log server is accessible by 8080 port and redirected to 80
     ports:
-      - "5601:5601"
-    restart: always
+      - "8081:81"
+    networks:
+      - elknet
+
+  logstash:
+    build : ./logstash
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ./logstash/pipeline:/usr/share/logstash/pipeline
+    environment:
+      - ES_JAVA_OPTS=-Xms750m -Xmx750m
+    networks:
+      - elknet
+
+  filebeat:
+    build : ./filebeat
+    #to avoid errors as filebeat starts in few ms
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      kibana:
+        condition: service_healthy
+      logstash:
+        condition: service_healthy
+    volumes:
+      - ./filebeat/config/filebeat.yml:/etc/filebeat/filebeat.yml
+      - ./logs:/logs
+    environment:
+      - ES_JAVA_OPTS=-Xms750m -Xmx750m
+    networks:
+      - elknet
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
+    links:
+      - "elasticsearch"
+      - "kibana"
+      - "logstash"
 
 networks:
   public_net:
@@ -115,11 +120,8 @@ networks:
     ipam:
       config:
         - subnet: ${NETWORK_SUBNET}
-  elastic:
-    driver: bridge
+  elknet:
 
 volumes:
-  datamaster:
-    driver: local
-  data1:
+  esdata:
     driver: local
