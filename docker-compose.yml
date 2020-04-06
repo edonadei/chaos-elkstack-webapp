@@ -105,6 +105,10 @@ services:       #Services à exécuter
     image: docker.elastic.co/kibana/kibana:6.3.2
     ports:
       - "5601:5601"
+  keepalived:
+    image: osixia/keepalived
+    volumes:
+      - ./keepalived/keepalived.cfg:/container/service/keepalived/assets/keepalived.conf
 
 networks:
   public_net:
