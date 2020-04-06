@@ -13,8 +13,8 @@ docker-compose up -d
 ```
 
 - Then you can access to the application by reaching **localhost**
-- Kibana is also accessible by reaching **localhost:5601**
-- Elasticsearch is set up on **localhost:9200**
+- Kibana is also accessible by reaching **localhost:8081**
+- Elasticsearch is set up on **localhost:8081/api/es**
 
 ## Schema of infrastructure
 **V1**
