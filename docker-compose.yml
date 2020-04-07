@@ -51,7 +51,7 @@ services:       #Services à exécuter
     restart: always
     environment:
       - discovery.type=single-node
-      - ES_JAVA_OPTS=-Xms750m -Xmx750m
+      - ES_JAVA_OPTS=-Xms256m -Xmx256m
     networks:
       - elknet
     #data persitence
@@ -85,7 +85,7 @@ services:       #Services à exécuter
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
       - ./logstash/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
     environment:
-      - ES_JAVA_OPTS=-Xms750m -Xmx750m
+      - ES_JAVA_OPTS=-Xms256m -Xmx256m
     networks:
       - elknet
 
