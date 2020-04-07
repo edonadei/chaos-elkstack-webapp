@@ -83,7 +83,7 @@ services:       #Services à exécuter
     build : ./logstash
     volumes:
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
-      - ./logstash/pipeline:/usr/share/logstash/pipeline
+      - ./logstash/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
     environment:
       - ES_JAVA_OPTS=-Xms750m -Xmx750m
     networks:
@@ -92,27 +92,21 @@ services:       #Services à exécuter
   filebeat:
     build : ./filebeat
     #to avoid errors as filebeat starts in few ms
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
-      kibana:
-        condition: service_healthy
-      logstash:
-        condition: service_healthy
+    # depends_on:
+    #   elasticsearch:
+    #     condition: service_healthy
+    #   kibana:
+    #     condition: service_healthy
+    #   logstash:
+    #     condition: service_healthy
     volumes:
       - ./filebeat/config/filebeat.yml:/etc/filebeat/filebeat.yml
-      - ./logs:/logs
-    environment:
-      - ES_JAVA_OPTS=-Xms750m -Xmx750m
     networks:
       - elknet
-    depends_on:
-      - elasticsearch
     restart: unless-stopped
     links:
-      - "elasticsearch"
-      - "kibana"
-      - "logstash"
+      - elasticsearch
+      - kibana
 
 networks:
   public_net:

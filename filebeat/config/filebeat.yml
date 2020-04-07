@@ -1,11 +1,7 @@
 filebeat.inputs:
   - type: log
-    enabled: true
     paths:
       - /var/log/*.log
-
-setup.kibana:
-  host: "kibana:5601"
 
 output.logstash:
   hosts: ["0.0.0.0:5044"]
