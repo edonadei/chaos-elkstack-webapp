@@ -13,7 +13,6 @@ ENV PATH=/usr/share/:$PATH
 COPY config /usr/share/
 
 # Add entrypoint wrapper script
-ADD docker-entrypoint /usr/local/bin
 
 WORKDIR /usr/share/
 RUN mkdir data logs && \
