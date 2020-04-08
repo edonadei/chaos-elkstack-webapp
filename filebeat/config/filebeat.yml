@@ -1,11 +1,18 @@
 filebeat.inputs:
-  - type: log
-    enabled: true
-    paths:
-      - /usr/share/filebeat/logs/containers/*/*.log
-    # fields:
-    #   type: docker
-    # json.message_key: log
+  # - type: log
+  #   enabled: true
+  #   paths:
+  #     - /containers/*/*.log
+  #   fields:
+  #     type: docker
+  #     json.message_key: log
+  - type: docker
+    combine_partial: true
+    containers:
+      path: "/var/lib/docker/containers"
+      stream: "stdout"
+      ids:
+        - "*"
 
 output.logstash:
   hosts: ["logstash:5044"]
