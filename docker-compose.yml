@@ -3,7 +3,7 @@ version: "3"
 services:       #Services à exécuter
 
   apache_img_1:     #Premier serveur apache à démarrer / Service 1
-    container_name: ${COMPOSE_PROJECT_NAME}_con_apache_1
+    container_name: ${COMPOSE_PROJECT_NAME}_apache_1
     build: ./apache/1     #tag de l'image construite
     restart: always
     expose:               #Ports de notre service (port interne)
@@ -13,7 +13,7 @@ services:       #Services à exécuter
         ipv4_address: ${APACHE_1_IP}
 
   apache_img_2:       #Deuxième serveur apache à démarrer / Service 2
-    container_name: ${COMPOSE_PROJECT_NAME}_con_apache_2
+    container_name: ${COMPOSE_PROJECT_NAME}_apache_2
     build: ./apache/2
     restart: always
     expose:
@@ -39,18 +39,18 @@ services:       #Services à exécuter
     restart: always
 
   # # Chaos engineering, killing each 30s a container
-  # pumba:
-  #   image: gaiaadm/pumba
-  #   container_name: chaos_with_pumba
-  #   restart: always
-  #   #the --signal=SIGKILL would be definitely more effective, but no restart mechanic yet except the restart:always
-  #   command: --interval=30s --random --log-level=info kill --signal=SIGTERM "re2:^${COMPOSE_PROJECT_NAME}" 
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock
+  pumba:
+    image: gaiaadm/pumba
+    container_name: chaos_with_pumba
+    restart: always
+    #the --signal=SIGKILL would be definitely more effective, but no restart mechanic yet except the restart:always
+    command: --interval=30s --random --log-level=info kill --signal=SIGTERM "re2:^${COMPOSE_PROJECT_NAME}" 
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     
   elasticsearch:
     build : ./elasticsearch
-    container_name: elasticsearch
+    container_name: ${COMPOSE_PROJECT_NAME}_elasticsearch
     restart: always
     environment:
       - discovery.type=single-node
@@ -62,11 +62,11 @@ services:       #Services à exécuter
     #   - "9200:9200"
     #   - "9300:9300"
     volumes:
-      - esdata:/usr/share/elasticsearch/data
+      - ./elasticsearch/esdata:/usr/share/elasticsearch/data
       
   kibana:
     build : ./kibana
-    container_name: kibana
+    container_name: ${COMPOSE_PROJECT_NAME}_kibana
     environment:
       SERVER_NAME : kibana
       #accessing elasticsearch url and port inside the subnet
@@ -79,7 +79,7 @@ services:       #Services à exécuter
   
   proxy:
     build : ./nginx
-    container_name : proxy
+    container_name: ${COMPOSE_PROJECT_NAME}_proxy
     #the log server is accessible by 8081 port and redirected to 81
     ports:
       - "8081:81"
@@ -89,6 +89,7 @@ services:       #Services à exécuter
 
   logstash:
     build : ./logstash
+    container_name: ${COMPOSE_PROJECT_NAME}_logstash
     user: root
     volumes:
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
@@ -105,6 +106,7 @@ services:       #Services à exécuter
 
   filebeat:
     build : ./filebeat
+    container_name: ${COMPOSE_PROJECT_NAME}_filebeat
     user: root
     #to avoid errors as filebeat starts in few ms
     # depends_on:
