@@ -58,6 +58,9 @@ services:       #Services à exécuter
     networks:
       - elknet
     #data persitence
+    ports:
+      - "9200:9200"
+      - "9300:9300"
     volumes:
       - esdata:/usr/share/elasticsearch/data
       
@@ -68,8 +71,8 @@ services:       #Services à exécuter
       SERVER_NAME : kibana
       #accessing elasticsearch url and port inside the subnet
       ELASTICSEARCH_URL : http://elasticsearch:9200
-    #volumes:
-     # - ./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+    volumes:
+      - ./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
     networks:
       - elknet
     restart: always
@@ -95,6 +98,8 @@ services:       #Services à exécuter
     networks:
       - elknet
     restart: always
+    links:
+      - elasticsearch
 
   filebeat:
     build : ./filebeat
@@ -116,8 +121,7 @@ services:       #Services à exécuter
       - elknet
     restart: always
     links:
-      - elasticsearch
-      - kibana
+      - logstash
 
 networks:
   public_net:
