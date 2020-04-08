@@ -106,6 +106,7 @@ services:       #Services à exécuter
     #     condition: service_healthy
     #   logstash:
     #     condition: service_healthy
+    command: filebeat -e -strict.perms=false
     volumes:
       - ./filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
       - /var/run/docker.sock:/usr/share/filebeat/docker.sock
