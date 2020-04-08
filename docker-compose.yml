@@ -63,6 +63,7 @@ services:       #Services à exécuter
     #   - "9300:9300"
     volumes:
       - esdata:/usr/share/elasticsearch/data
+      #- ./elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
       
   kibana:
     build : ./kibana
