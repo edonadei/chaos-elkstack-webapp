@@ -2,8 +2,9 @@ version: "3"
 
 services:       #Services à exécuter
 
-  apache_img_1:     #Premier serveur apache à démarrer / Service 1
+  apache-img-1:     #Premier serveur apache à démarrer / Service 1
     container_name: ${COMPOSE_PROJECT_NAME}_con_apache_1
+    image: "httpd:2.4"
     build: ./apache/1     #tag de l'image construite
     restart: always
     expose:               #Ports de notre service (port interne)
@@ -12,8 +13,9 @@ services:       #Services à exécuter
       public_net:           #Custom name
         ipv4_address: ${APACHE_1_IP}
 
-  apache_img_2:       #Deuxième serveur apache à démarrer / Service 2
+  apache-img-2:       #Deuxième serveur apache à démarrer / Service 2
     container_name: ${COMPOSE_PROJECT_NAME}_con_apache_2
+    image: "httpd:2.4"
     build: ./apache/2
     restart: always
     expose:
@@ -23,6 +25,7 @@ services:       #Services à exécuter
         ipv4_address: ${APACHE_2_IP}
 
   haproxy:            #Service haproxy : load balancing + proxy pour TCP et applications HTTP
+    image: "haproxy:1.7"
     build: ./haproxy  
     container_name: ${COMPOSE_PROJECT_NAME}_haproxy_1
     ports:
@@ -49,6 +52,7 @@ services:       #Services à exécuter
       - /var/run/docker.sock:/var/run/docker.sock
     
   elasticsearch:
+    image: "docker.elastic.co/elasticsearch/elasticsearch:7.6.2"
     build : ./elasticsearch
     container_name: elasticsearch
     restart: always
@@ -62,19 +66,21 @@ services:       #Services à exécuter
       - esdata:/usr/share/elasticsearch/data
       
   kibana:
+    image: "docker.elastic.co/kibana/kibana:7.6.2"
     build : ./kibana
     container_name: kibana
     environment:
       SERVER_NAME : kibana
       #accessing elasticsearch url and port inside the subnet
       ELASTICSEARCH_URL : http://elasticsearch:9200
-    #volumes:
-     # - ./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+    volumes:
+      - ./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
     networks:
       - elknet
     restart: always
   
   proxy:
+    image: "nginx"
     build : ./nginx
     container_name : proxy
     #the log server is accessible by 8081 port and redirected to 81
@@ -85,10 +91,11 @@ services:       #Services à exécuter
     restart: always
 
   logstash:
+    image: "docker.elastic.co/logstash/logstash:7.6.2"
     build : ./logstash
-    volumes:
-      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
-      - ./logstash/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    # volumes:
+      #- ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+      #- ./logstash/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
     environment:
       - ES_JAVA_OPTS=-Xms256m -Xmx256m
     networks:
@@ -96,6 +103,7 @@ services:       #Services à exécuter
     restart: always
 
   filebeat:
+    image: "docker.elastic.co/beats/filebeat:7.6.2"
     build : ./filebeat
     #to avoid errors as filebeat starts in few ms
     # depends_on:
@@ -106,7 +114,8 @@ services:       #Services à exécuter
     #   logstash:
     #     condition: service_healthy
     volumes:
-      - ./filebeat/config/filebeat.yml:/etc/filebeat/filebeat.yml
+      # - ./filebeat/config/filebeat.yml:/etc/filebeat/filebeat.yml
+      - filebeatconf:/etc/filebeat
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/lib/docker/containers:/containers
     networks:
@@ -131,3 +140,9 @@ volumes:
     driver: local
   logsApache2:
     driver: local
+  filebeatconf:
+    driver: local
+    driver_opts: 
+      o: bind
+      type: none
+      device: ./filebeat/config
