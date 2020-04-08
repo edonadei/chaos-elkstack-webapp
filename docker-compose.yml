@@ -38,15 +38,15 @@ services:       #Services à exécuter
       - APACHE_EXPOSED_PORT=${APACHE_EXPOSED_PORT}
     restart: always
 
-  # Chaos engineering, killing each 30s a container
-  pumba:
-    image: gaiaadm/pumba
-    container_name: chaos_with_pumba
-    restart: always
-    #the --signal=SIGKILL would be definitely more effective, but no restart mechanic yet except the restart:always
-    command: --interval=30s --random --log-level=info kill --signal=SIGTERM "re2:^${COMPOSE_PROJECT_NAME}" 
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+  # # Chaos engineering, killing each 30s a container
+  # pumba:
+  #   image: gaiaadm/pumba
+  #   container_name: chaos_with_pumba
+  #   restart: always
+  #   #the --signal=SIGKILL would be definitely more effective, but no restart mechanic yet except the restart:always
+  #   command: --interval=30s --random --log-level=info kill --signal=SIGTERM "re2:^${COMPOSE_PROJECT_NAME}" 
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
     
   elasticsearch:
     build : ./elasticsearch
@@ -54,13 +54,13 @@ services:       #Services à exécuter
     restart: always
     environment:
       - discovery.type=single-node
-      - ES_JAVA_OPTS=-Xms256m -Xmx256m
+      - ES_JAVA_OPTS=-Xms720m -Xmx720m
     networks:
       - elknet
     #data persitence
-    ports:
-      - "9200:9200"
-      - "9300:9300"
+    # ports:
+    #   - "9200:9200"
+    #   - "9300:9300"
     volumes:
       - esdata:/usr/share/elasticsearch/data
       
@@ -98,8 +98,10 @@ services:       #Services à exécuter
     networks:
       - elknet
     restart: always
-    links:
-      - elasticsearch
+    ports:
+      - "5044:5044"
+    # links:
+    #   - elasticsearch
 
   filebeat:
     build : ./filebeat
@@ -115,13 +117,13 @@ services:       #Services à exécuter
     command: filebeat -e -strict.perms=false
     volumes:
       - ./filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      - /var/run/docker.sock:/usr/share/filebeat/docker.sock
       - /var/lib/docker/containers:/usr/share/filebeat/logs/containers
+      - "/var/run/docker.sock:/var/run/docker.sock"
     networks:
       - elknet
     restart: always
-    links:
-      - logstash
+    # links:
+    #   - logstash
 
 networks:
   public_net:
