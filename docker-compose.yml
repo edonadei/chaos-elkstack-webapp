@@ -17,8 +17,8 @@ services:       #Services à exécuter
     networks:
       public_net:
         ipv4_address: ${APACHE_2_IP}
-  haproxy:            #Service haproxy : load balancing + proxy pour TCP et applications HTTP
-    build: ./haproxy  
+  haproxy_1:            #Service haproxy : load balancing + proxy pour TCP et applications HTTP
+    build: ./haproxy/1  
     ports:
       - 80:80
     expose:
@@ -31,12 +31,12 @@ services:       #Services à exécuter
       - APACHE_2_IP=${APACHE_2_IP}
       - APACHE_EXPOSED_PORT=${APACHE_EXPOSED_PORT}
     restart: always
-  haproxy:            #2e Haproxy pour la haute dispo
-    build: ./haproxy  
+  haproxy_2:            #2e Haproxy pour la haute dispo
+    build: ./haproxy/2  
     ports:
-      - 80:80
+      - 70:70
     expose:
-      - 80
+      - 70
     networks:
       public_net:
         ipv4_address: ${HA_PROXY_2_IP}
@@ -108,7 +108,13 @@ services:       #Services à exécuter
   keepalived:
     image: osixia/keepalived
     volumes:
-      - ./keepalived/keepalived.cfg:/container/service/keepalived/assets/keepalived.conf
+      - ./keepalived/keepalived.cfg:/container/service/keepalived/assets/keepalived.conf --copy-service
+    cap_add: 
+      - all
+      - NET_ADMIN
+
+    cap_drop: 
+      - SYS_ADMIN
 
 networks:
   public_net:
