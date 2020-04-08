@@ -86,6 +86,7 @@ services:       #Services à exécuter
 
   logstash:
     build : ./logstash
+    user: root
     volumes:
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
       - ./logstash/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
@@ -97,7 +98,7 @@ services:       #Services à exécuter
 
   filebeat:
     build : ./filebeat
-    user: "filebeat:filebeat"
+    user: root
     #to avoid errors as filebeat starts in few ms
     # depends_on:
     #   elasticsearch:
