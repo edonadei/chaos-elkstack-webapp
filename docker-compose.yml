@@ -1,6 +1,7 @@
 version: "3"
 
 services:       #Services à exécuter
+
   apache_img_1:     #Premier serveur apache à démarrer / Service 1
     container_name: ${COMPOSE_PROJECT_NAME}_con_apache_1
     build: ./apache/1     #tag de l'image construite
@@ -10,6 +11,7 @@ services:       #Services à exécuter
     networks:
       public_net:           #Custom name
         ipv4_address: ${APACHE_1_IP}
+
   apache_img_2:       #Deuxième serveur apache à démarrer / Service 2
     container_name: ${COMPOSE_PROJECT_NAME}_con_apache_2
     build: ./apache/2
@@ -19,6 +21,7 @@ services:       #Services à exécuter
     networks:
       public_net:
         ipv4_address: ${APACHE_2_IP}
+
   haproxy:            #Service haproxy : load balancing + proxy pour TCP et applications HTTP
     build: ./haproxy  
     container_name: ${COMPOSE_PROJECT_NAME}_haproxy_1
@@ -69,15 +72,17 @@ services:       #Services à exécuter
      # - ./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
     networks:
       - elknet
+    restart: always
   
   proxy:
     build : ./nginx
     container_name : proxy
-    #the log server is accessible by 8080 port and redirected to 80
+    #the log server is accessible by 8081 port and redirected to 81
     ports:
       - "8081:81"
     networks:
       - elknet
+    restart: always
 
   logstash:
     build : ./logstash
@@ -88,6 +93,7 @@ services:       #Services à exécuter
       - ES_JAVA_OPTS=-Xms256m -Xmx256m
     networks:
       - elknet
+    restart: always
 
   filebeat:
     build : ./filebeat
@@ -101,9 +107,11 @@ services:       #Services à exécuter
     #     condition: service_healthy
     volumes:
       - ./filebeat/config/filebeat.yml:/etc/filebeat/filebeat.yml
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/containers:/containers
     networks:
       - elknet
-    restart: unless-stopped
+    restart: always
     links:
       - elasticsearch
       - kibana
@@ -118,4 +126,8 @@ networks:
 
 volumes:
   esdata:
+    driver: local
+  logsApache1:
+    driver: local
+  logsApache2:
     driver: local

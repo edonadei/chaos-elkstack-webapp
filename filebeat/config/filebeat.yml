@@ -1,7 +1,9 @@
-filebeat.inputs:
-  - type: log
-    paths:
-      - /var/log/*.log
+filebeat.prospectors:
+  - input_type: log
+    path:
+      - /containers/*/*.log
+    document_type: docker
+    json.message_key: log
 
 output.logstash:
-  hosts: ["0.0.0.0:5044"]
+  hosts: ["logstash:5044"]
