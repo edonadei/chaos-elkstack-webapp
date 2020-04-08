@@ -97,6 +97,7 @@ services:       #Services à exécuter
 
   filebeat:
     build : ./filebeat
+    user: "filebeat:filebeat"
     #to avoid errors as filebeat starts in few ms
     # depends_on:
     #   elasticsearch:
@@ -106,9 +107,9 @@ services:       #Services à exécuter
     #   logstash:
     #     condition: service_healthy
     volumes:
-      - ./filebeat/config/filebeat.yml:/etc/filebeat/filebeat.yml
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /var/lib/docker/containers:/containers
+      - ./filebeat/config/filebeat.yml:/usr/share/filebeat/data/filebeat.yml
+      - /var/run/docker.sock:/usr/share/filebeat/data/docker.sock
+      - /var/lib/docker/containers:/usr/share/filebeat/data/containers
     networks:
       - elknet
     restart: always
