@@ -107,9 +107,9 @@ services:       #Services à exécuter
     #   logstash:
     #     condition: service_healthy
     volumes:
-      - ./filebeat/config/filebeat.yml:/usr/share/filebeat/data/filebeat.yml
-      - /var/run/docker.sock:/usr/share/filebeat/data/docker.sock
-      - /var/lib/docker/containers:/usr/share/filebeat/data/containers
+      - ./filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/run/docker.sock:/usr/share/filebeat/docker.sock
+      - /var/lib/docker/containers:/usr/share/filebeat/logs/containers
     networks:
       - elknet
     restart: always
