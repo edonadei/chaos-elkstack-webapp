@@ -63,6 +63,7 @@ services:       #Services à exécuter
     #   - "9300:9300"
     volumes:
       - esdata:/usr/share/elasticsearch/data
+      - esbackup:/opt/elasticsearch/backup
       #- ./elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
       
   kibana:
@@ -115,6 +116,8 @@ services:       #Services à exécuter
     #     condition: service_healthy
     #   logstash:
     #     condition: service_healthy
+    depends_on: 
+      - logstash
     command: filebeat -e -strict.perms=false
     volumes:
       - ./filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
@@ -141,3 +144,6 @@ volumes:
     driver: local
   logsApache2:
     driver: local
+  esbackup:
+    external:
+      name: backups-4-es

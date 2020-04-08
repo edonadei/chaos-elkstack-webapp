@@ -9,6 +9,12 @@ To start the load balanced apache with ELK
 ```
 git clone git@github.com:edonadei/create-scaling-webapp-with-elasticsearch.git
 cd create-scaling-webapp-with-elasticsearch
+docker-compose build
+
+# Before running the stack you need to create the backup volume
+docker volume create --name=backups-4-es
+
+# Now you can run the stack
 docker-compose up -d
 ```
 
