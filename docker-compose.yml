@@ -64,8 +64,13 @@ services:       #Services à exécuter
     volumes:
       - esdata:/usr/share/elasticsearch/data
       - esbackup:/opt/elasticsearch/backup
-      #- ./elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
-      
+      # - ./elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+  
+  es-backup-manager:
+    build : ./es-backup-manager
+    container_name: es-backup-manager
+    
+
   kibana:
     build : ./kibana
     container_name: kibana
