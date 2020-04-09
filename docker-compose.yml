@@ -38,15 +38,15 @@ services:       #Services à exécuter
       - APACHE_EXPOSED_PORT=${APACHE_EXPOSED_PORT}
     restart: always
 
-  # # Chaos engineering, killing each 30s a container
-  # pumba:
-  #   image: gaiaadm/pumba
-  #   container_name: chaos_with_pumba
-  #   restart: always
-  #   #the --signal=SIGKILL would be definitely more effective, but no restart mechanic yet except the restart:always
-  #   command: --interval=30s --random --log-level=info kill --signal=SIGTERM "re2:^${COMPOSE_PROJECT_NAME}" 
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock
+  # Chaos engineering, killing each 30s a container
+  pumba:
+    image: gaiaadm/pumba
+    container_name: chaos_with_pumba
+    restart: always
+    #the --signal=SIGKILL would be definitely more effective, but no restart mechanic yet except the restart:always
+    command: --interval=30s --random --log-level=info kill --signal=SIGTERM "re2:^${COMPOSE_PROJECT_NAME}" 
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     
   elasticsearch:
     build : ./elasticsearch
@@ -57,10 +57,6 @@ services:       #Services à exécuter
       - ES_JAVA_OPTS=-Xms720m -Xmx720m
     networks:
       - elknet
-    #data persitence
-    # ports:
-    #   - "9200:9200"
-    #   - "9300:9300"
     volumes:
       - esdata:/usr/share/elasticsearch/data
       #- ./elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
@@ -90,6 +86,7 @@ services:       #Services à exécuter
 
   logstash:
     build : ./logstash
+    container_name: logstash
     user: root
     volumes:
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
@@ -101,20 +98,16 @@ services:       #Services à exécuter
     restart: always
     ports:
       - "5044:5044"
-    # links:
-    #   - elasticsearch
 
   filebeat:
     build : ./filebeat
+    container_name: filebeat
     user: root
     #to avoid errors as filebeat starts in few ms
-    # depends_on:
-    #   elasticsearch:
-    #     condition: service_healthy
-    #   kibana:
-    #     condition: service_healthy
-    #   logstash:
-    #     condition: service_healthy
+    depends_on:
+      - elasticsearch
+      - kibana
+      - logstash
     command: filebeat -e -strict.perms=false
     volumes:
       - ./filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
@@ -123,8 +116,6 @@ services:       #Services à exécuter
     networks:
       - elknet
     restart: always
-    # links:
-    #   - logstash
 
 networks:
   public_net:
