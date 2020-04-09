@@ -50,7 +50,7 @@ services:       #Services à exécuter
     
   elasticsearch:
     build : ./elasticsearch
-    container_name: ${COMPOSE_PROJECT_NAME}_elasticsearch
+    container_name: elasticsearch
     restart: always
     environment:
       - discovery.type=single-node
@@ -62,7 +62,7 @@ services:       #Services à exécuter
       
   kibana:
     build : ./kibana
-    container_name: ${COMPOSE_PROJECT_NAME}_kibana
+    container_name: kibana
     environment:
       SERVER_NAME : kibana
       #accessing elasticsearch url and port inside the subnet
@@ -75,7 +75,7 @@ services:       #Services à exécuter
   
   proxy:
     build : ./nginx
-    container_name: ${COMPOSE_PROJECT_NAME}_proxy
+    container_name: proxy
     #the log server is accessible by 8081 port and redirected to 81
     ports:
       - "8081:81"
