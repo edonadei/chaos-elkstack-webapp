@@ -3,14 +3,14 @@ version: "3"
 services:       #Services à exécuter
 
   apache_img_1:     #Premier serveur apache à démarrer / Service 1
-    container_name: ${COMPOSE_PROJECT_NAME}_con_apache_1
+    # container_name: ${COMPOSE_PROJECT_NAME}_con_apache_1
     build: ./apache/1     #tag de l'image construite
     restart: always
     expose:               #Ports de notre service (port interne)
       - ${APACHE_EXPOSED_PORT}
     networks:
-      public_net:           #Custom name
-        ipv4_address: ${APACHE_1_IP}
+      - public_net           #Custom name
+        # ipv4_address: ${APACHE_1_IP}
 
   apache_img_2:       #Deuxième serveur apache à démarrer / Service 2
     container_name: ${COMPOSE_PROJECT_NAME}_con_apache_2
@@ -37,6 +37,8 @@ services:       #Services à exécuter
       - APACHE_2_IP=${APACHE_2_IP}
       - APACHE_EXPOSED_PORT=${APACHE_EXPOSED_PORT}
     restart: always
+    links:
+      - apache_img_1
 
   # # Chaos engineering, killing each 30s a container
   # pumba:
@@ -57,10 +59,6 @@ services:       #Services à exécuter
       - ES_JAVA_OPTS=-Xms720m -Xmx720m
     networks:
       - elknet
-    #data persitence
-    # ports:
-    #   - "9200:9200"
-    #   - "9300:9300"
     volumes:
       - esdata:/usr/share/elasticsearch/data
       - esbackup:/opt/elasticsearch/backup

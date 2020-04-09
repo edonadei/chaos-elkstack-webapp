@@ -4,4 +4,4 @@ RUN echo 'path.repo: ["/opt/elasticsearch/backup"]' >> /usr/share/elasticsearch/
 
 COPY docker-entrypoint.sh /
 
-ENTRYPOINT [ "/docker-entrypoint.sh" ]
+ENTRYPOINT [ "docker-entrypoint.sh" ]

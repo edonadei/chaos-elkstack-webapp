@@ -1,5 +1,8 @@
-FROM curlimages/curl:7.69.1
+FROM ubuntu:bionic
+RUN apt-get update && apt-get install curl -y
+RUN whoami
+USER root
 
-COPY docker-entrypoint.sh /
+COPY ./bootstrap.sh /bootstrap.sh
 
-ENTRYPOINT [ "docker-entrypoint.sh" ]
+ENTRYPOINT ["/bootstrap.sh"]
