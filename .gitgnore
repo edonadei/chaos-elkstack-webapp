@@ -12,6 +12,8 @@
 # production
 /build
 
+/elasticsearch/esdata
+
 # misc
 .DS_Store
 .env.local
