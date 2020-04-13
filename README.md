@@ -17,5 +17,4 @@ docker-compose up -d
 - Elasticsearch is set up on **localhost:8081/api/es**
 
 ## Schema of infrastructure
-**V1**
 ![Schema](schema_infra.png)
